@@ -14,6 +14,7 @@ import com.pnp.kannadapostermaker.presentation.HomeScreen
 fun AppNavHost() {
 
     val navController = rememberNavController()
+
     Scaffold { paddingValues ->
 
         NavHost(
@@ -25,17 +26,29 @@ fun AppNavHost() {
             composable(Screen.Home.route) {
 
                 HomeScreen(
-                    onNavigateToEditor = {
+                    onNavigateToEditor = { imageUri ->
+
                         navController.navigate(
-                            Screen.Editor.route
+                            Screen.createEditorRoute(
+                                imageUri
+                            )
                         )
                     }
                 )
             }
 
-            composable(Screen.Editor.route) {
+            composable(
+                route = Screen.Editor.route
+            ) { backStackEntry ->
 
-                EditorScreen()
+                val imageUri =
+                    backStackEntry.arguments
+                        ?.getString("imageUri")
+                        ?: ""
+
+                EditorScreen(
+                    imageUri = imageUri
+                )
             }
         }
     }
