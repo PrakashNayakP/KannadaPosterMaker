@@ -2,10 +2,10 @@ package com.pnp.kannadapostermaker.presentation
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -13,21 +13,26 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.remember
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
-
+import com.pnp.kannadapostermaker.presentation.components.EditorToolbar
+import com.pnp.kannadapostermaker.presentation.components.TextLayerItem
+import com.pnp.kannadapostermaker.presentation.viewmodel.EditorViewModel
 
 @Composable
 fun EditorScreen(
-    imageUri: String
+    imageUri: String,
+    viewModel: EditorViewModel = viewModel()
 ) {
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    var isEditMode by remember {
+        mutableStateOf(false)
+    }
 
     var showDialog by remember {
         mutableStateOf(false)
@@ -35,17 +40,6 @@ fun EditorScreen(
 
     var inputText by remember {
         mutableStateOf("")
-    }
-
-    var textLayers by remember {
-        mutableStateOf(
-            listOf(
-                TextLayer(
-                    id = "1",
-                    text = "ನಿಮ್ಮ ಪಠ್ಯ"
-                )
-            )
-        )
     }
 
     Box(
@@ -58,53 +52,84 @@ fun EditorScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        textLayers.forEach { layer ->
+        uiState.textLayers.forEach { layer ->
 
-            var offsetX by remember(layer.id) {
-                mutableStateOf(layer.offsetX)
-            }
+            TextLayerItem(
+                layer = layer,
 
-            var offsetY by remember(layer.id) {
-                mutableStateOf(layer.offsetY)
-            }
+                onSelected = {
+                    viewModel.selectLayer(layer.id)
+                },
 
-            Text(
-                text = layer.text,
-
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .offset {
-                        IntOffset(
-                            offsetX.roundToInt(),
-                            offsetY.roundToInt()
-                        )
-                    }
-                    .pointerInput(layer.id) {
-
-                        detectDragGestures { _, dragAmount ->
-
-                            offsetX += dragAmount.x
-                            offsetY += dragAmount.y
-
-                            textLayers =
-                                textLayers.map {
-
-                                    if (it.id == layer.id) {
-                                        it.copy(
-                                            offsetX = offsetX,
-                                            offsetY = offsetY
-                                        )
-                                    } else {
-                                        it
-                                    }
-                                }
-                        }
-                    }
+                onPositionChanged = { x, y ->
+                    viewModel.updatePosition(
+                        layer.id,
+                        x,
+                        y
+                    )
+                }
             )
+        }
+
+        if (uiState.selectedLayerId != null) {
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 90.dp)
+            ) {
+
+                EditorToolbar(
+
+                    onEdit = {
+
+                            isEditMode = true
+
+                            inputText =
+                                uiState.textLayers
+                                    .firstOrNull {
+                                        it.id == uiState.selectedLayerId
+                                    }
+                                    ?.text.orEmpty()
+
+                            showDialog = true
+                    },
+
+                    onDelete = {
+                        viewModel.deleteSelected()
+                    },
+
+                    onIncreaseFont = {
+                        viewModel.increaseFont()
+                    },
+
+                    onDecreaseFont = {
+                        viewModel.decreaseFont()
+                    },
+
+                    onRed = {
+                        viewModel.changeColor(Color.Red)
+                    },
+
+                    onYellow = {
+                        viewModel.changeColor(Color.Yellow)
+                    },
+
+                    onWhite = {
+                        viewModel.changeColor(Color.White)
+                    },
+
+                    onBlack = {
+                        viewModel.changeColor(Color.Black)
+                    }
+                )
+            }
         }
 
         FloatingActionButton(
             onClick = {
+                isEditMode = false
+                inputText = ""
                 showDialog = true
             },
             modifier = Modifier
@@ -122,7 +147,7 @@ fun EditorScreen(
                 },
 
                 title = {
-                    Text("Add Text")
+                    Text("Enter Text")
                 },
 
                 text = {
@@ -131,9 +156,6 @@ fun EditorScreen(
                         value = inputText,
                         onValueChange = {
                             inputText = it
-                        },
-                        label = {
-                            Text("Enter Text")
                         }
                     )
                 },
@@ -142,79 +164,26 @@ fun EditorScreen(
 
                     TextButton(
                         onClick = {
+                            if (isEditMode) {
 
-                            if (inputText.isNotBlank()) {
+                                viewModel.editSelectedText(
+                                    inputText
+                                )
 
-                                textLayers =
-                                    textLayers + TextLayer(
-                                        id = System.currentTimeMillis().toString(),
-                                        text = inputText,
-                                        offsetX = 0f,
-                                        offsetY = 0f
-                                    )
+                            } else {
 
-                                inputText = ""
+                                viewModel.addText(
+                                    inputText
+                                )
                             }
-
+                            inputText = ""
                             showDialog = false
                         }
                     ) {
-                        Text("Add")
-                    }
-                },
-
-                dismissButton = {
-
-                    TextButton(
-                        onClick = {
-                            showDialog = false
-                        }
-                    ) {
-                        Text("Cancel")
+                        Text("Save")
                     }
                 }
             )
         }
     }
-}
-
-
-@Composable
-fun DraggableText(
-    layer: TextLayer,
-    onPositionChanged: (Float, Float) -> Unit
-) {
-
-    var offsetX by remember(layer.id) {
-        mutableStateOf(layer.offsetX)
-    }
-
-    var offsetY by remember(layer.id) {
-        mutableStateOf(layer.offsetY)
-    }
-
-    BasicText(
-        text = layer.text,
-
-        modifier = Modifier
-            .offset {
-                IntOffset(
-                    offsetX.roundToInt(),
-                    offsetY.roundToInt()
-                )
-            }
-            .pointerInput(Unit) {
-
-                detectDragGestures { _, dragAmount ->
-
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y
-
-                    onPositionChanged(
-                        offsetX,
-                        offsetY
-                    )
-                }
-            }
-    )
 }
