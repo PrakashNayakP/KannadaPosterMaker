@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -18,9 +19,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.pnp.kannadapostermaker.presentation.components.BannerPlaceholder
 import com.pnp.kannadapostermaker.presentation.components.EditorToolbar
+import com.pnp.kannadapostermaker.presentation.components.EditorTopBar
 import com.pnp.kannadapostermaker.presentation.components.TextLayerItem
+import com.pnp.kannadapostermaker.presentation.components.ToolCategory
+import com.pnp.kannadapostermaker.presentation.components.ToolCategoryBar
 import com.pnp.kannadapostermaker.presentation.viewmodel.EditorViewModel
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Button
 
 @Composable
 fun EditorScreen(
@@ -29,6 +36,12 @@ fun EditorScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    var selectedCategory by remember {
+        mutableStateOf(
+            ToolCategory.TEXT
+        )
+    }
 
     var isEditMode by remember {
         mutableStateOf(false)
@@ -42,148 +55,178 @@ fun EditorScreen(
         mutableStateOf("")
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-
-        AsyncImage(
-            model = Uri.decode(imageUri),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize()
-        )
-
-        uiState.textLayers.forEach { layer ->
-
-            TextLayerItem(
-                layer = layer,
-
-                onSelected = {
-                    viewModel.selectLayer(layer.id)
-                },
-
-                onPositionChanged = { x, y ->
-                    viewModel.updatePosition(
-                        layer.id,
-                        x,
-                        y
-                    )
+    Scaffold(
+        topBar = {
+            EditorTopBar(
+                onExportClick = {
+                    // next milestone
                 }
             )
         }
+    ) {paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
 
-        if (uiState.selectedLayerId != null) {
-
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 90.dp)
+            Box(
+                modifier = Modifier.weight(1f)
             ) {
 
-                EditorToolbar(
+                AsyncImage(
+                    model = Uri.decode(imageUri),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
 
-                    onEdit = {
+                uiState.textLayers.forEach { layer ->
 
-                            isEditMode = true
+                    TextLayerItem(
+                        layer = layer,
 
-                            inputText =
-                                uiState.textLayers
-                                    .firstOrNull {
-                                        it.id == uiState.selectedLayerId
-                                    }
-                                    ?.text.orEmpty()
+                        onSelected = {
+                            viewModel.selectLayer(layer.id)
+                        },
 
-                            showDialog = true
+                        onPositionChanged = { x, y ->
+                            viewModel.updatePosition(
+                                layer.id,
+                                x,
+                                y
+                            )
+                        }
+                    )
+                }
+            }
+
+            ToolCategoryBar(
+                selected = selectedCategory,
+                onCategorySelected = {
+                    selectedCategory = it
+                }
+            )
+
+            when (selectedCategory) {
+
+                ToolCategory.TEXT -> {
+
+                    Row {
+
+                        androidx.compose.material3.Button(
+                            onClick = {
+                                isEditMode = false
+                                inputText = ""
+                                showDialog = true
+                            }
+                        ) {
+                            Text("Add Text")
+                        }
+
+                        androidx.compose.material3.Button(
+                            onClick = {
+
+                                if (uiState.selectedLayerId != null) {
+
+                                    isEditMode = true
+
+                                    inputText =
+                                        uiState.textLayers
+                                            .firstOrNull {
+                                                it.id == uiState.selectedLayerId
+                                            }
+                                            ?.text.orEmpty()
+
+                                    showDialog = true
+                                }
+                            }
+                        ) {
+                            Text("Edit")
+                        }
+
+                        Button(
+                            onClick = {
+                                viewModel.deleteSelected()
+                            }
+                        ) {
+                            Text("Delete")
+                        }
+                    }
+                }
+
+                ToolCategory.FONT -> {
+
+                    Text(
+                        text = "Font Panel Coming Soon",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                ToolCategory.COLOR -> {
+
+                    Text(
+                        text = "Color Panel Coming Soon",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+
+                ToolCategory.LAYER -> {
+
+                    Text(
+                        text = "Layer Panel Coming Soon",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
+            }
+
+            BannerPlaceholder()
+        }
+        if (showDialog) {
+
+                AlertDialog(
+                    onDismissRequest = {
+                        showDialog = false
                     },
 
-                    onDelete = {
-                        viewModel.deleteSelected()
+                    title = {
+                        Text("Enter Text")
                     },
 
-                    onIncreaseFont = {
-                        viewModel.increaseFont()
+                    text = {
+
+                        OutlinedTextField(
+                            value = inputText,
+                            onValueChange = {
+                                inputText = it
+                            }
+                        )
                     },
 
-                    onDecreaseFont = {
-                        viewModel.decreaseFont()
-                    },
+                    confirmButton = {
 
-                    onRed = {
-                        viewModel.changeColor(Color.Red)
-                    },
+                        TextButton(
+                            onClick = {
+                                if (isEditMode) {
 
-                    onYellow = {
-                        viewModel.changeColor(Color.Yellow)
-                    },
+                                    viewModel.editSelectedText(
+                                        inputText
+                                    )
 
-                    onWhite = {
-                        viewModel.changeColor(Color.White)
-                    },
+                                } else {
 
-                    onBlack = {
-                        viewModel.changeColor(Color.Black)
+                                    viewModel.addText(
+                                        inputText
+                                    )
+                                }
+                                inputText = ""
+                                showDialog = false
+                            }
+                        ) {
+                            Text("Save")
+                        }
                     }
                 )
             }
-        }
 
-        FloatingActionButton(
-            onClick = {
-                isEditMode = false
-                inputText = ""
-                showDialog = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-        ) {
-            Text("+")
-        }
-
-        if (showDialog) {
-
-            AlertDialog(
-                onDismissRequest = {
-                    showDialog = false
-                },
-
-                title = {
-                    Text("Enter Text")
-                },
-
-                text = {
-
-                    OutlinedTextField(
-                        value = inputText,
-                        onValueChange = {
-                            inputText = it
-                        }
-                    )
-                },
-
-                confirmButton = {
-
-                    TextButton(
-                        onClick = {
-                            if (isEditMode) {
-
-                                viewModel.editSelectedText(
-                                    inputText
-                                )
-
-                            } else {
-
-                                viewModel.addText(
-                                    inputText
-                                )
-                            }
-                            inputText = ""
-                            showDialog = false
-                        }
-                    ) {
-                        Text("Save")
-                    }
-                }
-            )
-        }
     }
 }
