@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import com.pnp.kannadapostermaker.presentation.TextLayer
+import com.pnp.kannadapostermaker.presentation.model.ImageBounds
 import com.pnp.kannadapostermaker.presentation.model.PosterFont
 
 class EditorViewModel : ViewModel() {
@@ -170,6 +171,22 @@ class EditorViewModel : ViewModel() {
                         it
                     }
                 }
+            )
+        }
+    }
+
+    fun updateImageBounds(
+        width: Int,
+        height: Int
+    ) {
+
+        _uiState.update {
+
+            it.copy(
+                imageBounds = ImageBounds(
+                    width = width,
+                    height = height
+                )
             )
         }
     }

@@ -85,7 +85,13 @@ fun EditorScreen(
                         y
                     )
                 },
+                onImageBoundsChanged = { width, height ->
 
+                    viewModel.updateImageBounds(
+                        width,
+                        height
+                    )
+                },
                 modifier = Modifier.weight(1f)
             )
 

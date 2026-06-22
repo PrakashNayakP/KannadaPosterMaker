@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import coil.compose.AsyncImage
 import com.pnp.kannadapostermaker.presentation.TextLayer
 
@@ -15,6 +16,7 @@ fun EditorContent(
     textLayers: List<TextLayer>,
     onLayerSelected: (String) -> Unit,
     onLayerMoved: (String, Float, Float) -> Unit,
+    onImageBoundsChanged: (width: Int, height: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -25,7 +27,16 @@ fun EditorContent(
         AsyncImage(
             model = Uri.decode(imageUri),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize()
+
+            modifier = Modifier
+                .fillMaxSize()
+                .onGloballyPositioned {
+
+                    onImageBoundsChanged(
+                        it.size.width,
+                        it.size.height
+                    )
+                }
         )
 
         textLayers.forEach { layer ->
