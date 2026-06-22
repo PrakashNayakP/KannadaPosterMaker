@@ -28,6 +28,7 @@ import com.pnp.kannadapostermaker.presentation.components.ToolCategoryBar
 import com.pnp.kannadapostermaker.presentation.viewmodel.EditorViewModel
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
+import com.pnp.kannadapostermaker.presentation.components.ToolContentPanel
 
 @Composable
 fun EditorScreen(
@@ -63,7 +64,7 @@ fun EditorScreen(
                 }
             )
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -107,77 +108,54 @@ fun EditorScreen(
                 }
             )
 
-            when (selectedCategory) {
+            ToolContentPanel(
 
-                ToolCategory.TEXT -> {
+                selectedCategory = selectedCategory,
 
-                    Row {
+                onAddText = {
 
-                        androidx.compose.material3.Button(
-                            onClick = {
-                                isEditMode = false
-                                inputText = ""
-                                showDialog = true
-                            }
-                        ) {
-                            Text("Add Text")
-                        }
+                    isEditMode = false
+                    inputText = ""
+                    showDialog = true
+                },
 
-                        androidx.compose.material3.Button(
-                            onClick = {
+                onEditText = {
 
-                                if (uiState.selectedLayerId != null) {
+                    if (uiState.selectedLayerId != null) {
 
-                                    isEditMode = true
+                        isEditMode = true
 
-                                    inputText =
-                                        uiState.textLayers
-                                            .firstOrNull {
-                                                it.id == uiState.selectedLayerId
-                                            }
-                                            ?.text.orEmpty()
-
-                                    showDialog = true
+                        inputText =
+                            uiState.textLayers
+                                .firstOrNull {
+                                    it.id == uiState.selectedLayerId
                                 }
-                            }
-                        ) {
-                            Text("Edit")
-                        }
+                                ?.text.orEmpty()
 
-                        Button(
-                            onClick = {
-                                viewModel.deleteSelected()
-                            }
-                        ) {
-                            Text("Delete")
-                        }
+                        showDialog = true
                     }
+                },
+
+                onDeleteText = {
+                    viewModel.deleteSelected()
+                },
+
+                onIncreaseFont = {
+                    viewModel.increaseFont()
+                },
+
+                onDecreaseFont = {
+                    viewModel.decreaseFont()
+                },
+
+                onColorSelected = {
+                    viewModel.changeColor(it)
+                },
+
+                onDeleteLayer = {
+                    viewModel.deleteSelected()
                 }
-
-                ToolCategory.FONT -> {
-
-                    Text(
-                        text = "Font Panel Coming Soon",
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                ToolCategory.COLOR -> {
-
-                    Text(
-                        text = "Color Panel Coming Soon",
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                ToolCategory.LAYER -> {
-
-                    Text(
-                        text = "Layer Panel Coming Soon",
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-            }
+            )
 
             BannerPlaceholder()
         }
