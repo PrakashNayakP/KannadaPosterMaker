@@ -2,6 +2,7 @@ package com.pnp.kannadapostermaker.presentation.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.pnp.kannadapostermaker.presentation.model.PosterFont
 
 @Composable
 fun ToolContentPanel(
@@ -16,7 +17,8 @@ fun ToolContentPanel(
 
     onColorSelected: (Color) -> Unit,
 
-    onDeleteLayer: () -> Unit
+    onDeleteLayer: () -> Unit,
+    onFontSelected: (PosterFont) -> Unit,
 ) {
 
     when (selectedCategory) {
@@ -41,7 +43,9 @@ fun ToolContentPanel(
 
         ToolCategory.FONT -> {
 
-            FontPanel()
+            FontPanel(
+                onFontSelected = onFontSelected
+            )
         }
 
         ToolCategory.LAYER -> {

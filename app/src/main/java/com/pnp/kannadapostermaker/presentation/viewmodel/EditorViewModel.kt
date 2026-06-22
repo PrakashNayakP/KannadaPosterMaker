@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import com.pnp.kannadapostermaker.presentation.TextLayer
+import com.pnp.kannadapostermaker.presentation.model.PosterFont
 
 class EditorViewModel : ViewModel() {
 
@@ -141,6 +142,30 @@ class EditorViewModel : ViewModel() {
 
                     if (it.id == selectedId) {
                         it.block()
+                    } else {
+                        it
+                    }
+                }
+            )
+        }
+    }
+
+    fun changeFont(font: PosterFont) {
+
+        val selectedId =
+            _uiState.value.selectedLayerId ?: return
+
+        _uiState.update { state ->
+
+            state.copy(
+                textLayers = state.textLayers.map {
+
+                    if (it.id == selectedId) {
+
+                        it.copy(
+                            font = font
+                        )
+
                     } else {
                         it
                     }

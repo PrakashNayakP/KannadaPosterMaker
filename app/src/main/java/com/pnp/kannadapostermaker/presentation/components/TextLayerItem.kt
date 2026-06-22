@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pnp.kannadapostermaker.presentation.TextLayer
+import com.pnp.kannadapostermaker.presentation.model.PosterFont
+import com.pnp.kannadapostermaker.presentation.utils.FontUtils
 import kotlin.math.roundToInt
 
 @Composable
@@ -34,10 +36,23 @@ fun BoxScope.TextLayerItem(
         mutableFloatStateOf(layer.offsetY)
     }
 
+    val fontFamily = when(layer.font) {
+
+        PosterFont.NOTO ->
+            FontUtils.notoKannada
+
+        PosterFont.NOTO_SERIF ->
+            FontUtils.notoSerifKannada
+
+        PosterFont.BALOO ->
+            FontUtils.balooTamma
+    }
+
     Text(
         text = layer.text,
         color = layer.color,
         fontSize = layer.fontSize.sp,
+        fontFamily = fontFamily,
         fontWeight = FontWeight.Bold,
 
         modifier = Modifier

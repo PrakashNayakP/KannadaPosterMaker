@@ -154,7 +154,10 @@ fun EditorScreen(
 
                 onDeleteLayer = {
                     viewModel.deleteSelected()
-                }
+                },
+                onFontSelected = {
+                    viewModel.changeFont(it)
+                },
             )
 
             BannerPlaceholder()

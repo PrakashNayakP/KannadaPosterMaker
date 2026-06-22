@@ -9,17 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.pnp.kannadapostermaker.presentation.model.PosterFont
 
 @Composable
-fun FontPanel() {
-
-    val fonts = listOf(
-        "Noto Kannada",
-        "Tunga",
-        "Baloo",
-        "Mallige",
-        "Kedage"
-    )
+fun FontPanel(
+    onFontSelected: (PosterFont) -> Unit
+) {
 
     Row(
         modifier = Modifier
@@ -29,15 +24,40 @@ fun FontPanel() {
             .padding(8.dp)
     ) {
 
-        fonts.forEach {
+        FilterChip(
+            selected = false,
+            onClick = {
+                onFontSelected(
+                    PosterFont.NOTO
+                )
+            },
+            label = {
+                Text("Noto")
+            }
+        )
 
-            FilterChip(
-                selected = false,
-                onClick = {},
-                label = {
-                    Text(it)
-                }
-            )
-        }
+        FilterChip(
+            selected = false,
+            onClick = {
+                onFontSelected(
+                    PosterFont.NOTO_SERIF
+                )
+            },
+            label = {
+                Text("Serif")
+            }
+        )
+
+        FilterChip(
+            selected = false,
+            onClick = {
+                onFontSelected(
+                    PosterFont.BALOO
+                )
+            },
+            label = {
+                Text("Baloo")
+            }
+        )
     }
 }
