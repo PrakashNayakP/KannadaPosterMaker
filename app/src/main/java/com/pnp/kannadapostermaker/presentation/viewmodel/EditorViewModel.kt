@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import com.pnp.kannadapostermaker.presentation.TextLayer
+import com.pnp.kannadapostermaker.presentation.model.CanvasTransformState
 import com.pnp.kannadapostermaker.presentation.model.ImageBounds
 import com.pnp.kannadapostermaker.presentation.model.PosterFont
 
@@ -187,6 +188,25 @@ class EditorViewModel : ViewModel() {
                     width = width,
                     height = height
                 )
+            )
+        }
+    }
+
+    fun updateCanvasTransform(
+        scale: Float,
+        offsetX: Float,
+        offsetY: Float
+    ) {
+
+        _uiState.update {
+
+            it.copy(
+                canvasTransform =
+                    CanvasTransformState(
+                        scale = scale,
+                        offsetX = offsetX,
+                        offsetY = offsetY
+                    )
             )
         }
     }

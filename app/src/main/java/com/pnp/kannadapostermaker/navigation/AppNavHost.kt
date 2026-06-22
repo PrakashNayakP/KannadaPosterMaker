@@ -15,10 +15,7 @@ fun AppNavHost() {
 
     val navController = rememberNavController()
 
-    Scaffold { paddingValues ->
-
         NavHost(
-            modifier = Modifier.padding(paddingValues),
             navController = navController,
             startDestination = Screen.Home.route
         ) {
@@ -51,5 +48,4 @@ fun AppNavHost() {
                 )
             }
         }
-    }
 }

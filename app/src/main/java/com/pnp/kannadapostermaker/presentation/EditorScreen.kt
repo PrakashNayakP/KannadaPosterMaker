@@ -92,7 +92,21 @@ fun EditorScreen(
                         height
                     )
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                canvasTransform =
+                    uiState.canvasTransform,
+
+                onCanvasTransformChanged = {
+                        scale,
+                        x,
+                        y ->
+
+                    viewModel.updateCanvasTransform(
+                        scale,
+                        x,
+                        y
+                    )
+                },
             )
 
             ToolCategoryBar(
