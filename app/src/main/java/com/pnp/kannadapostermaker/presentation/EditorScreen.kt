@@ -28,6 +28,7 @@ import com.pnp.kannadapostermaker.presentation.components.ToolCategoryBar
 import com.pnp.kannadapostermaker.presentation.viewmodel.EditorViewModel
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Button
+import com.pnp.kannadapostermaker.presentation.components.EditorContent
 import com.pnp.kannadapostermaker.presentation.components.ToolContentPanel
 
 @Composable
@@ -65,41 +66,28 @@ fun EditorScreen(
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
+        Column(modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+                .fillMaxSize()) {
 
-            Box(
-                modifier = Modifier.weight(1f)
-            ) {
+            EditorContent(
+                imageUri = imageUri,
+                textLayers = uiState.textLayers,
 
-                AsyncImage(
-                    model = Uri.decode(imageUri),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
+                onLayerSelected = {
+                    viewModel.selectLayer(it)
+                },
 
-                uiState.textLayers.forEach { layer ->
-
-                    TextLayerItem(
-                        layer = layer,
-
-                        onSelected = {
-                            viewModel.selectLayer(layer.id)
-                        },
-
-                        onPositionChanged = { x, y ->
-                            viewModel.updatePosition(
-                                layer.id,
-                                x,
-                                y
-                            )
-                        }
+                onLayerMoved = { id, x, y ->
+                    viewModel.updatePosition(
+                        id,
+                        x,
+                        y
                     )
-                }
-            }
+                },
+
+                modifier = Modifier.weight(1f)
+            )
 
             ToolCategoryBar(
                 selected = selectedCategory,
@@ -107,7 +95,6 @@ fun EditorScreen(
                     selectedCategory = it
                 }
             )
-
             ToolContentPanel(
 
                 selectedCategory = selectedCategory,
@@ -159,7 +146,6 @@ fun EditorScreen(
                     viewModel.changeFont(it)
                 },
             )
-
             BannerPlaceholder()
         }
         if (showDialog) {
